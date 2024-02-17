@@ -1,7 +1,10 @@
-from fastapi import FastAPI, Depends, HTTPException
+import time
+
+from fastapi import FastAPI, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from middleware import RateLimitingMiddleware
 from models import get_db, News, Base, engine
 
 import users
@@ -13,6 +16,7 @@ app = FastAPI(
 )
 
 app.include_router(users.router)
+app.add_middleware(RateLimitingMiddleware)
 
 Base.metadata.create_all(engine)
 
@@ -25,6 +29,15 @@ class CreateNewSchema(BaseModel):
 class ResponseNewsSchema(BaseModel):
     title: str
     content: str
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["x-duration"] = f'{str(process_time)} - seconds'
+    return response
 
 
 @app.post('/new/', response_model=ResponseNewsSchema, tags=['News'])
