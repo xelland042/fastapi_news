@@ -52,10 +52,8 @@ async def detail_new(new_id: int, db: Session = Depends(get_db)):
 async def detail_new(new_id: int, data_new: CreateNewSchema, db: Session = Depends(get_db)):
     new = db.query(News).get(new_id)
     if new:
-        if data_new.title:
-            new.title = data_new.title
-        if data_new.content:
-            new.content = data_new.content
+        new.title = data_new.title
+        new.content = data_new.content
         db.commit()
         db.refresh(new)
         return new
