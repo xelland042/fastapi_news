@@ -7,7 +7,7 @@ class RateLimitingMiddleware(BaseHTTPMiddleware):
     # Rate limiting configurations
     RATE_LIMIT_DURATION = timedelta(minutes=1)
     RATE_LIMIT_REQUESTS = 3
-    BLOCKED_USERS = ['127.0.0.1']
+    BLOCKED_USERS = []
 
     def __init__(self, app):
         super().__init__(app)
